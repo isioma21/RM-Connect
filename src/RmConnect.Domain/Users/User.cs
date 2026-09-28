@@ -12,6 +12,8 @@ public class User
     public string PasswordHash { get; private set; } = default!;
     public UserRole Role { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public DateTime? LastLoginAt { get; private set; }
+    public string? LastLoginIp { get; private set; }
 
     private User() { }
 
@@ -34,6 +36,12 @@ public class User
     }
 
     public bool IsRelationshipManager => Role == UserRole.RelationshipManager;
+
+    public void RecordLogin(string ipAddress, DateTime now)
+    {
+        LastLoginAt = now;
+        LastLoginIp = ipAddress;
+    }
 
     public static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
 

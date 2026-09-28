@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RmConnect.Api.Auth;
 using RmConnect.Application.Auth;
+using RmConnect.Application.Sessions;
 
 namespace RmConnect.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController(AuthService authService, ILogger<AuthController> logger) : ControllerBase
+public class AuthController(AuthService authService, SessionService sessionService, ILogger<AuthController> logger) : ControllerBase
 {
     [HttpPost("register/customer")]
     public async Task<ActionResult<UserResponse>> RegisterCustomer(RegisterCustomerRequest request, CancellationToken ct)
@@ -33,15 +34,18 @@ public class AuthController(AuthService authService, ILogger<AuthController> log
         if (user is null)
             return Unauthorized(new { message = "Invalid email or password." });
 
-        await SignInAsync(user);
+        var sessionId = await sessionService.StartAsync(user.Id, HttpContext.GetClientIp(), HttpContext.GetDevice(), ct);
+        await SignInAsync(user, sessionId);
         return Ok(user);
     }
 
     [Authorize]
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Logout(CancellationToken ct)
     {
+        await sessionService.RevokeAsync(User.GetUserId(), User.GetSessionId(), ct);
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
         logger.LogInformation("User {UserId} logged out", User.GetUserId());
         return NoContent();
     }
@@ -54,13 +58,14 @@ public class AuthController(AuthService authService, ILogger<AuthController> log
         return user is null ? Unauthorized() : Ok(user);
     }
 
-    /// <summary>Issues the auth cookie holding the user's id and role.</summary>
-    private Task SignInAsync(UserResponse user)
+    /// <summary>Issues the auth cookie holding the user's id, role and this device's session id.</summary>
+    private Task SignInAsync(UserResponse user, Guid sessionId)
     {
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Role, user.Role.ToString())
+            new(ClaimTypes.Role, user.Role.ToString()),
+            new(ClaimsPrincipalExtensions.SessionIdClaim, sessionId.ToString())
         };
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

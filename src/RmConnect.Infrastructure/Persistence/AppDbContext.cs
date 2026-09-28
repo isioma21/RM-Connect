@@ -9,6 +9,7 @@ namespace RmConnect.Infrastructure.Persistence;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<UserSession> Sessions => Set<UserSession>();
     public DbSet<Relationship> Relationships => Set<Relationship>();
     public DbSet<Appointment> Appointments => Set<Appointment>();
 

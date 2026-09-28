@@ -1,4 +1,7 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using RmConnect.Application.Sessions;
 
 namespace RmConnect.Api.Auth;
 
@@ -18,6 +21,18 @@ public static class CookieAuthSetup
                 options.ExpireTimeSpan = sessionLength;
                 options.SlidingExpiration = true;
 
+                // Reject the cookie if its session was signed out (e.g. "sign out other devices")
+                options.Events.OnValidatePrincipal = async context =>
+                {
+                    var sessionId = context.Principal?.FindFirstValue(ClaimsPrincipalExtensions.SessionIdClaim);
+                    var sessions = context.HttpContext.RequestServices.GetRequiredService<SessionService>();
+
+                    if (sessionId is null || !await sessions.IsActiveAsync(Guid.Parse(sessionId), context.HttpContext.RequestAborted))
+                    {
+                        context.RejectPrincipal();
+                        await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    }
+                };
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;

@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using RmConnect.Application.Appointments;
 using RmConnect.Application.Auth;
 using RmConnect.Application.Relationships;
+using RmConnect.Application.Sessions;
 
 namespace RmConnect.Application;
 
@@ -13,11 +14,13 @@ public static class DependencyInjection
     {
         services.Configure<RegistrationOptions>(configuration.GetSection(RegistrationOptions.SectionName));
         services.Configure<AppointmentOptions>(configuration.GetSection(AppointmentOptions.SectionName));
+        services.Configure<SessionOptions>(configuration.GetSection(SessionOptions.SectionName));
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         services.AddSingleton<BookingCalendar>();
         services.AddScoped<AuthService>();
         services.AddScoped<RelationshipService>();
         services.AddScoped<AppointmentService>();
+        services.AddScoped<SessionService>();
 
         return services;
     }
