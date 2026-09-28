@@ -4,6 +4,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom'
 import { homePath, useAuth } from '../auth/AuthContext'
 import { ErrorAlert } from '../components/ErrorAlert'
+import { PasswordField } from '../components/PasswordField'
 
 const features = [
   'Request the manager you want to work with',
@@ -73,7 +74,7 @@ export function LoginPage() {
               </Box>
               <ErrorAlert error={error} />
               <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required autoFocus />
-              <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+              <PasswordField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
               <Button type="submit" variant="contained" size="large" disabled={submitting}>
                 {submitting ? 'Logging in…' : 'Log in'}
               </Button>

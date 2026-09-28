@@ -5,6 +5,7 @@ import { authApi } from '../api/auth'
 import type { Role } from '../api/types'
 import { homePath, useAuth } from '../auth/AuthContext'
 import { ErrorAlert } from '../components/ErrorAlert'
+import { PasswordField } from '../components/PasswordField'
 
 const emptyForm = { firstName: '', lastName: '', email: '', phone: '', branch: '', password: '' }
 
@@ -80,9 +81,8 @@ export function RegisterPage() {
               ) : (
                 <TextField label="Branch" value={form.branch} onChange={(e) => update('branch', e.target.value)} required />
               )}
-              <TextField
+              <PasswordField
                 label="Password"
-                type="password"
                 value={form.password}
                 onChange={(e) => update('password', e.target.value)}
                 autoComplete="new-password"
