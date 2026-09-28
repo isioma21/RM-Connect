@@ -42,3 +42,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Lets the integration tests start the API in memory (WebApplicationFactory<Program>)
+public partial class Program;
