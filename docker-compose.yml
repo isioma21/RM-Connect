@@ -1,0 +1,48 @@
+# Runs everything: docker compose up --build, then open http://localhost:8080
+services:
+  web:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: src/RmConnect.Api/Dockerfile
+    environment:
+      ConnectionStrings__Default: "Server=sqlserver;Database=RmConnect;User Id=sa;Password=${SA_PASSWORD:-RmConnect#Local2026};TrustServerCertificate=True"
+      Database__MigrateOnStartup: "true"
+      ForwardedHeaders__Enabled: "true"
+      DemoData__Enabled: "true"
+      DemoData__Password: "Password123!"
+      Swagger__Enabled: "false"
+      Serilog__WriteTo__1__Args__serverUrl: "http://seq:5341"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SA_PASSWORD:-RmConnect#Local2026}"
+    volumes:
+      - sqldata:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" -b
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  seq:
+    image: datalust/seq:2024.3
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "8081:80"
+
+volumes:
+  sqldata:
