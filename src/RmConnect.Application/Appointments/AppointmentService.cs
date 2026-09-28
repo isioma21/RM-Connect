@@ -48,7 +48,6 @@ public class AppointmentService(
         }
         catch (DbUpdateException)
         {
-            // Another booking for the same slot was saved first; the unique index rejected this one.
             throw new ConflictException("This time slot is no longer available.");
         }
 

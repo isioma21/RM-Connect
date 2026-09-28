@@ -21,7 +21,6 @@ public static class CookieAuthSetup
                 options.ExpireTimeSpan = sessionLength;
                 options.SlidingExpiration = true;
 
-                // Reject the cookie if its session was signed out (e.g. "sign out other devices")
                 options.Events.OnValidatePrincipal = async context =>
                 {
                     var sessionId = context.Principal?.FindFirstValue(ClaimsPrincipalExtensions.SessionIdClaim);

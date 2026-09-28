@@ -6,7 +6,6 @@ namespace RmConnect.Api.Logging;
 
 public static class RequestLogging
 {
-    /// <summary>One log line per request: method, path, status, time taken, who made it and from which IP.</summary>
     public static IApplicationBuilder UseRequestLogging(this IApplicationBuilder app)
     {
         return app.UseSerilogRequestLogging(options =>
