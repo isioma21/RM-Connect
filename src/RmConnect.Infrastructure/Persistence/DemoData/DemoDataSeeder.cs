@@ -23,7 +23,7 @@ public static class DemoDataSeeder
         var passwordHash = hasher.Hash(options.Password);
         var now = DateTime.UtcNow;
 
-        var demoUsers = options.Managers.Select(m => User.RegisterManager(m.FirstName, m.LastName, m.Email, passwordHash, now))
+        var demoUsers = options.Managers.Select(m => User.RegisterManager(m.FirstName, m.LastName, m.Email, m.Branch, passwordHash, now))
             .Concat(options.Customers.Select(c => User.RegisterCustomer(c.FirstName, c.LastName, c.Email, c.Phone, passwordHash, now)))
             .ToList();
 

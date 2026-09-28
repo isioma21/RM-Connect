@@ -8,6 +8,7 @@ public class User
     public string LastName { get; private set; } = default!;
     public string Email { get; private set; } = default!;
     public string? Phone { get; private set; }
+    public string? Branch { get; private set; }
     public string PasswordHash { get; private set; } = default!;
     public UserRole Role { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -23,11 +24,13 @@ public class User
         return user;
     }
 
-    /// <summary>Relationship managers sign up with their name and work email.</summary>
-    public static User RegisterManager(string firstName, string lastName, string workEmail,
+    /// <summary>Relationship managers sign up with their name, work email and the branch they work at.</summary>
+    public static User RegisterManager(string firstName, string lastName, string workEmail, string branch,
         string passwordHash, DateTime now)
     {
-        return Create(firstName, lastName, workEmail, passwordHash, UserRole.RelationshipManager, now);
+        var user = Create(firstName, lastName, workEmail, passwordHash, UserRole.RelationshipManager, now);
+        user.Branch = branch.Trim();
+        return user;
     }
 
     public bool IsRelationshipManager => Role == UserRole.RelationshipManager;

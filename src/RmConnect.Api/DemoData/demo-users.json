@@ -1,9 +1,9 @@
 {
   "DemoData": {
     "Managers": [
-      { "FirstName": "Adaeze", "LastName": "Okafor", "Email": "adaeze.okafor@rmconnect.bank" },
-      { "FirstName": "Tunde", "LastName": "Bakare", "Email": "tunde.bakare@rmconnect.bank" },
-      { "FirstName": "Ngozi", "LastName": "Eze", "Email": "ngozi.eze@rmconnect.bank" }
+      { "FirstName": "Adaeze", "LastName": "Okafor", "Email": "adaeze.okafor@rmconnect.bank", "Branch": "Victoria Island" },
+      { "FirstName": "Tunde", "LastName": "Bakare", "Email": "tunde.bakare@rmconnect.bank", "Branch": "Ikeja" },
+      { "FirstName": "Ngozi", "LastName": "Eze", "Email": "ngozi.eze@rmconnect.bank", "Branch": "Lekki" }
     ],
     "Customers": [
       { "FirstName": "Chidi", "LastName": "Nwosu", "Email": "chidi.nwosu@example.com", "Phone": "08031234567" },

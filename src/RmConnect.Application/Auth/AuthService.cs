@@ -28,7 +28,7 @@ public class AuthService(
     {
         await managerValidator.ValidateAndThrowAsync(request, ct);
 
-        var user = User.RegisterManager(request.FirstName, request.LastName, request.WorkEmail,
+        var user = User.RegisterManager(request.FirstName, request.LastName, request.WorkEmail, request.Branch,
             passwordHasher.Hash(request.Password), DateTime.UtcNow);
 
         return await SaveNewUserAsync(user, ct);

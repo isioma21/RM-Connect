@@ -11,6 +11,6 @@ public class DemoDataOptions
     public List<DemoCustomer> Customers { get; set; } = [];
 }
 
-public record DemoManager(string FirstName, string LastName, string Email);
+public record DemoManager(string FirstName, string LastName, string Email, string Branch);
 
 public record DemoCustomer(string FirstName, string LastName, string Email, string Phone);
