@@ -27,7 +27,6 @@ public class Appointment
         if (relationship.Status != RelationshipStatus.Active)
             throw new DomainException("You can only book with your active relationship manager.");
         if (startsAt <= now) throw new DomainException("The appointment time must be in the future.");
-        if (string.IsNullOrWhiteSpace(reason)) throw new DomainException("A reason is required.");
 
         return new Appointment
         {
