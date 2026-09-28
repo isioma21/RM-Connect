@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using RmConnect.Api.Auth;
 using RmConnect.Api.Errors;
+using RmConnect.Api.Logging;
 using RmConnect.Application;
 using RmConnect.Infrastructure;
 using RmConnect.Infrastructure.Persistence.DemoData;
@@ -26,7 +27,7 @@ var app = builder.Build();
 
 await app.Services.SeedDemoDataAsync();
 
-app.UseSerilogRequestLogging();
+app.UseRequestLogging();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 if (app.Configuration.GetValue<bool>("Swagger:Enabled"))
