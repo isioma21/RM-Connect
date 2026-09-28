@@ -30,7 +30,11 @@ public static class CookieAuthSetup
                     {
                         context.RejectPrincipal();
                         await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                        return;
                     }
+
+                    // Renew on every request so the session ends exactly SessionMinutes after the last activity
+                    context.ShouldRenew = true;
                 };
                 options.Events.OnRedirectToLogin = context =>
                 {

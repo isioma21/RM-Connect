@@ -56,3 +56,12 @@ export type RegisterManagerRequest = {
   branch: string
   password: string
 }
+
+export type Session = {
+  id: string
+  device: string
+  ipAddress: string
+  signedInAt: string
+  lastSeenAt: string
+  isCurrent: boolean
+}

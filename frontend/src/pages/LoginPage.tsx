@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { Box, Button, Card, CardContent, Link, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Box, Button, Card, CardContent, Link, Stack, TextField, Typography } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
-import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom'
+import { Link as RouterLink, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { homePath, useAuth } from '../auth/AuthContext'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { PasswordField } from '../components/PasswordField'
@@ -15,6 +15,7 @@ const features = [
 export function LoginPage() {
   const { user, login } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<unknown>(null)
@@ -72,6 +73,7 @@ export function LoginPage() {
                 <Typography variant="h2" component="h1">Log in</Typography>
                 <Typography color="text.secondary">Use the email you registered with.</Typography>
               </Box>
+              {searchParams.has('signedOut') && !error && <Alert severity="info">You have been signed out. Please log in again.</Alert>}
               <ErrorAlert error={error} />
               <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required autoFocus />
               <PasswordField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />

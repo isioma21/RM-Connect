@@ -3,15 +3,18 @@ import { AppBar, Box, Button, Container, Stack, Toolbar, Typography } from '@mui
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { ConfirmDialog } from './ConfirmDialog'
+import { IdleWarning } from './IdleWarning'
 
 const customerLinks = [
   { to: '/customer', label: 'My manager' },
   { to: '/customer/book', label: 'Book appointment' },
+  { to: '/devices', label: 'Devices' },
 ]
 
 const managerLinks = [
   { to: '/manager', label: 'Customers' },
   { to: '/manager/schedule', label: 'Schedule' },
+  { to: '/devices', label: 'Devices' },
 ]
 
 /** Top bar and page area for signed-in pages. */
@@ -65,6 +68,8 @@ export function Layout() {
         onConfirm={handleLogout}
         onClose={() => setConfirmingLogout(false)}
       />
+
+      <IdleWarning />
 
       <Container maxWidth="lg" sx={{ py: 5 }}>
         <Outlet />
