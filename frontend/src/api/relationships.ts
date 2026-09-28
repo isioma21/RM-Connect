@@ -6,4 +6,9 @@ export const relationshipsApi = {
   current: () => api<Relationship | undefined>('GET', '/relationships/current'),
   request: (managerId: string) => api<Relationship>('POST', '/relationships', { managerId }),
   end: (id: string) => api<Relationship>('POST', `/relationships/${id}/end`),
+
+  // Relationship manager
+  forManager: () => api<Relationship[]>('GET', '/relationships'),
+  accept: (id: string) => api<Relationship>('POST', `/relationships/${id}/accept`),
+  decline: (id: string) => api<Relationship>('POST', `/relationships/${id}/decline`),
 }

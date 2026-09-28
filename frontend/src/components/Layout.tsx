@@ -11,6 +11,7 @@ const customerLinks = [
 
 const managerLinks = [
   { to: '/manager', label: 'Customers' },
+  { to: '/manager/schedule', label: 'Schedule' },
 ]
 
 /** Top bar and page area for signed-in pages. */

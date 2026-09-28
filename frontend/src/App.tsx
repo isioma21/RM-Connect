@@ -7,6 +7,7 @@ import { RegisterPage } from './pages/RegisterPage.tsx'
 import { BookAppointmentPage } from './pages/customer/BookAppointmentPage.tsx'
 import { CustomerHomePage } from './pages/customer/CustomerHomePage.tsx'
 import { ManagerHomePage } from './pages/manager/ManagerHomePage.tsx'
+import { ManagerSchedulePage } from './pages/manager/ManagerSchedulePage.tsx'
 
 export default function App() {
   const { user } = useAuth()
@@ -23,6 +24,7 @@ export default function App() {
 
       <Route element={<RequireRole role="RelationshipManager"><Layout /></RequireRole>}>
         <Route path="/manager" element={<ManagerHomePage />} />
+        <Route path="/manager/schedule" element={<ManagerSchedulePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to={user ? homePath(user) : '/login'} replace />} />
