@@ -1,5 +1,3 @@
-using RmConnect.Domain.Common;
-
 namespace RmConnect.Domain.Users;
 
 /// <summary>A customer or a relationship manager.</summary>
@@ -14,14 +12,12 @@ public class User
     public UserRole Role { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    private User() { } 
+    private User() { }
 
     /// <summary>Customers sign up with their name, email and phone number.</summary>
     public static User RegisterCustomer(string firstName, string lastName, string email, string phone,
         string passwordHash, DateTime now)
     {
-        if (string.IsNullOrWhiteSpace(phone)) throw new DomainException("Phone number is required.");
-
         var user = Create(firstName, lastName, email, passwordHash, UserRole.Customer, now);
         user.Phone = phone.Trim();
         return user;
@@ -41,11 +37,6 @@ public class User
     private static User Create(string firstName, string lastName, string email, string passwordHash,
         UserRole role, DateTime now)
     {
-        if (string.IsNullOrWhiteSpace(firstName)) throw new DomainException("First name is required.");
-        if (string.IsNullOrWhiteSpace(lastName)) throw new DomainException("Last name is required.");
-        if (string.IsNullOrWhiteSpace(email)) throw new DomainException("Email is required.");
-        if (string.IsNullOrWhiteSpace(passwordHash)) throw new DomainException("Password is required.");
-
         return new User
         {
             Id = Guid.NewGuid(),
