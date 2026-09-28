@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import {
-  Alert, Box, Button, Card, CardContent, CircularProgress, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography,
+  Alert, Box, Button, Card, CardContent, CircularProgress, MenuItem, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import dayjs, { type Dayjs } from 'dayjs'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { appointmentsApi } from '../../api/appointments'
 import { relationshipsApi } from '../../api/relationships'
@@ -9,23 +11,19 @@ import type { AppointmentChannel, Relationship } from '../../api/types'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { channelLabel, formatDay, formatTime } from '../../utils/format'
 
-/** The next 10 weekdays, starting tomorrow, as yyyy-MM-dd. */
-function nextWeekdays() {
-  const days: string[] = []
-  const day = new Date()
-  while (days.length < 10) {
-    day.setDate(day.getDate() + 1)
-    if (day.getDay() !== 0 && day.getDay() !== 6) days.push(day.toLocaleDateString('en-CA'))
-  }
-  return days
-}
+const isWeekend = (day: Dayjs) => day.day() === 0 || day.day() === 6
 
-const weekdays = nextWeekdays()
+/** The first weekday after today. */
+function nextWeekday() {
+  let day = dayjs().add(1, 'day')
+  while (isWeekend(day)) day = day.add(1, 'day')
+  return day
+}
 
 export function BookAppointmentPage() {
   const navigate = useNavigate()
   const [relationship, setRelationship] = useState<Relationship | null>()
-  const [date, setDate] = useState(weekdays[0])
+  const [date, setDate] = useState(nextWeekday)
   const [freeSlots, setFreeSlots] = useState<string[]>([])
   const [slot, setSlot] = useState<string | null>(null)
   const [channel, setChannel] = useState<AppointmentChannel>('Call')
@@ -40,7 +38,7 @@ export function BookAppointmentPage() {
   const hasManager = relationship?.status === 'Active'
 
   useEffect(() => {
-    if (hasManager) appointmentsApi.freeSlots(date).then(setFreeSlots).catch(setError)
+    if (hasManager) appointmentsApi.freeSlots(date.format('YYYY-MM-DD')).then(setFreeSlots).catch(setError)
   }, [date, hasManager])
 
   if (relationship === undefined) return error ? <ErrorAlert error={error} /> : <CircularProgress aria-label="Loading" />
@@ -48,7 +46,8 @@ export function BookAppointmentPage() {
 
   const { manager, customer } = relationship
 
-  function pickDate(day: string) {
+  function pickDate(day: Dayjs | null) {
+    if (!day?.isValid() || isWeekend(day) || !day.isAfter(dayjs(), 'day')) return
     setDate(day)
     setSlot(null)
   }
@@ -74,35 +73,35 @@ export function BookAppointmentPage() {
 
         <Card>
           <CardContent sx={{ p: 3 }}>
-            <Typography sx={{ fontWeight: 700, mb: 2 }}>1. Pick a day</Typography>
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1 }}>
-              {weekdays.map((day) => (
-                <Button key={day} variant={day === date ? 'contained' : 'outlined'} onClick={() => pickDate(day)}>
-                  {formatDay(day)}
-                </Button>
-              ))}
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent sx={{ p: 3 }}>
-            <Typography sx={{ fontWeight: 700, mb: 2 }}>2. Pick a time <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400 }}>(Lagos time)</Box></Typography>
-            {freeSlots.length === 0 && <Typography color="text.secondary">No free times on this day. Please pick another day.</Typography>}
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 1 }}>
-              {freeSlots.map((free) => (
-                <Button key={free} variant={free === slot ? 'contained' : 'outlined'} onClick={() => setSlot(free)}>
-                  {formatTime(free)}
-                </Button>
-              ))}
-            </Box>
+            <Typography sx={{ fontWeight: 700, mb: 2.5 }}>1. When would you like to meet?</Typography>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <DatePicker
+                label="Date"
+                value={date}
+                onChange={pickDate}
+                minDate={dayjs().add(1, 'day')}
+                shouldDisableDate={isWeekend}
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                select
+                label="Time"
+                value={slot ?? ''}
+                onChange={(e) => setSlot(e.target.value)}
+                disabled={freeSlots.length === 0}
+                helperText={freeSlots.length === 0 ? 'No free times on this day. Please pick another date.' : ' '}
+                sx={{ flex: 1 }}
+              >
+                {freeSlots.map((free) => <MenuItem key={free} value={free}>{formatTime(free)}</MenuItem>)}
+              </TextField>
+            </Stack>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent sx={{ p: 3 }}>
             <Stack spacing={2}>
-              <Typography sx={{ fontWeight: 700 }}>3. How would you like to meet?</Typography>
+              <Typography sx={{ fontWeight: 700 }}>2. How would you like to meet?</Typography>
               <ToggleButtonGroup exclusive fullWidth color="primary" value={channel} onChange={(_, value) => value && setChannel(value)}>
                 <ToggleButton value="Call">Call</ToggleButton>
                 <ToggleButton value="BranchVisit">Branch visit</ToggleButton>
