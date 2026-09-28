@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,7 +7,7 @@ using RmConnect.Domain.Users;
 
 namespace RmConnect.Infrastructure.Persistence.DemoData;
 
-/// <summary>When DemoData:Enabled is true, registers the users in the demo JSON file (skipping emails already taken).</summary>
+/// <summary>When DemoData:Enabled is true, registers the demo users whose email isn't taken yet.</summary>
 public static class DemoDataSeeder
 {
     public static async Task SeedDemoDataAsync(this IServiceProvider services)
@@ -21,31 +20,20 @@ public static class DemoDataSeeder
         var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DemoData");
 
-        var json = await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, options.FilePath));
-        var file = JsonSerializer.Deserialize<DemoUsersFile>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
-
         var passwordHash = hasher.Hash(options.Password);
         var now = DateTime.UtcNow;
-        var added = 0;
 
-        foreach (var manager in file.Managers)
-        {
-            if (await IsRegistered(db, manager.Email)) continue;
-            db.Users.Add(User.RegisterManager(manager.FirstName, manager.LastName, manager.Email, passwordHash, now));
-            added++;
-        }
+        var demoUsers = options.Managers.Select(m => User.RegisterManager(m.FirstName, m.LastName, m.Email, passwordHash, now))
+            .Concat(options.Customers.Select(c => User.RegisterCustomer(c.FirstName, c.LastName, c.Email, c.Phone, passwordHash, now)))
+            .ToList();
 
-        foreach (var customer in file.Customers)
-        {
-            if (await IsRegistered(db, customer.Email)) continue;
-            db.Users.Add(User.RegisterCustomer(customer.FirstName, customer.LastName, customer.Email, customer.Phone, passwordHash, now));
-            added++;
-        }
+        var demoEmails = demoUsers.Select(u => u.Email).ToList();
+        var registeredEmails = await db.Users.Where(u => demoEmails.Contains(u.Email)).Select(u => u.Email).ToListAsync();
 
+        var newUsers = demoUsers.Where(u => !registeredEmails.Contains(u.Email)).ToList();
+        db.Users.AddRange(newUsers);
         await db.SaveChangesAsync();
-        logger.LogInformation("Demo data: {AddedCount} users added", added);
-    }
 
-    private static Task<bool> IsRegistered(AppDbContext db, string email) =>
-        db.Users.AnyAsync(u => u.Email == User.NormalizeEmail(email));
+        logger.LogInformation("Demo data: {AddedCount} users added", newUsers.Count);
+    }
 }

@@ -7,6 +7,7 @@ using RmConnect.Infrastructure.Persistence.DemoData;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("DemoData/demo-users.json", optional: true);
 
 // Console + Seq, configured in appsettings.json ("Serilog" section)
 builder.Host.UseSerilog((context, logger) => logger.ReadFrom.Configuration(context.Configuration));
