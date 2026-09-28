@@ -1,0 +1,11 @@
+{
+  "managers": [
+    { "firstName": "Adaeze", "lastName": "Okafor", "email": "adaeze.okafor@rmconnect.bank" },
+    { "firstName": "Tunde", "lastName": "Bakare", "email": "tunde.bakare@rmconnect.bank" },
+    { "firstName": "Ngozi", "lastName": "Eze", "email": "ngozi.eze@rmconnect.bank" }
+  ],
+  "customers": [
+    { "firstName": "Chidi", "lastName": "Nwosu", "email": "chidi.nwosu@example.com", "phone": "08031234567" },
+    { "firstName": "Funke", "lastName": "Adeyemi", "email": "funke.adeyemi@example.com", "phone": "08059876543" }
+  ]
+}
