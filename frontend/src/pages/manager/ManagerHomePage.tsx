@@ -1,13 +1,11 @@
-import { Typography } from '@mui/material'
-import { useAuth } from '../../auth/AuthContext'
+import { Stack, Typography } from '@mui/material'
+import { Greeting } from '../../components/Greeting'
 
 export function ManagerHomePage() {
-  const { user } = useAuth()
-
   return (
-    <>
-      <Typography variant="h1">Welcome, {user?.firstName}</Typography>
+    <Stack spacing={1}>
+      <Greeting />
       <Typography color="text.secondary">Your customer requests and schedule will show here.</Typography>
-    </>
+    </Stack>
   )
 }

@@ -10,6 +10,37 @@ export type User = {
   role: Role
 }
 
+export type RelationshipStatus = 'Pending' | 'Active' | 'Declined' | 'Ended'
+
+export type Relationship = {
+  id: string
+  status: RelationshipStatus
+  requestedAt: string
+  respondedAt: string | null
+  endedAt: string | null
+  customer: User
+  manager: User
+}
+
+export type AppointmentChannel = 'Call' | 'BranchVisit'
+export type AppointmentStatus = 'Booked' | 'Cancelled' | 'Completed'
+
+export type Appointment = {
+  id: string
+  startsAt: string
+  channel: AppointmentChannel
+  reason: string
+  status: AppointmentStatus
+  customer: User
+  manager: User
+}
+
+export type BookAppointmentRequest = {
+  startsAt: string
+  channel: AppointmentChannel
+  reason: string
+}
+
 export type RegisterCustomerRequest = {
   firstName: string
   lastName: string

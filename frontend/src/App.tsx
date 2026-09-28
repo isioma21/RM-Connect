@@ -4,6 +4,7 @@ import { RequireRole } from './auth/RequireRole.tsx'
 import { Layout } from './components/Layout.tsx'
 import { LoginPage } from './pages/LoginPage.tsx'
 import { RegisterPage } from './pages/RegisterPage.tsx'
+import { BookAppointmentPage } from './pages/customer/BookAppointmentPage.tsx'
 import { CustomerHomePage } from './pages/customer/CustomerHomePage.tsx'
 import { ManagerHomePage } from './pages/manager/ManagerHomePage.tsx'
 
@@ -17,6 +18,7 @@ export default function App() {
 
       <Route element={<RequireRole role="Customer"><Layout /></RequireRole>}>
         <Route path="/customer" element={<CustomerHomePage />} />
+        <Route path="/customer/book" element={<BookAppointmentPage />} />
       </Route>
 
       <Route element={<RequireRole role="RelationshipManager"><Layout /></RequireRole>}>
