@@ -12,6 +12,7 @@ public class AppointmentService(
     IAppDbContext db,
     BookingCalendar calendar,
     IValidator<BookAppointmentRequest> validator,
+    IValidator<RescheduleAppointmentRequest> rescheduleValidator,
     ILogger<AppointmentService> logger)
 {
     public async Task<List<DateTime>> GetFreeSlotsAsync(Guid customerId, DateOnly date, CancellationToken ct)
@@ -75,6 +76,36 @@ public class AppointmentService(
         await db.SaveChangesAsync(ct);
 
         logger.LogInformation("User {UserId} cancelled appointment {AppointmentId}", userId, appointmentId);
+        return AppointmentResponse.From(appointment);
+    }
+
+    public async Task<AppointmentResponse> RescheduleAsync(Guid customerId, Guid appointmentId,
+        RescheduleAppointmentRequest request, CancellationToken ct)
+    {
+        await rescheduleValidator.ValidateAndThrowAsync(request, ct);
+
+        var appointment = await FindAsync(appointmentId, customerId, ct);
+        var oldStartsAt = appointment.StartsAt;
+        var startsAt = request.StartsAt.UtcDateTime;
+
+        var slotTaken = await db.Appointments.AnyAsync(a => a.ManagerId == appointment.ManagerId &&
+            a.StartsAt == startsAt && a.Status == AppointmentStatus.Booked && a.Id != appointmentId, ct);
+        if (slotTaken)
+            throw new ConflictException("This time slot is no longer available.");
+
+        appointment.Reschedule(startsAt, DateTime.UtcNow);
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            throw new ConflictException("This time slot is no longer available.");
+        }
+
+        logger.LogInformation("Customer {CustomerId} moved appointment {AppointmentId} from {OldStartsAt} to {StartsAt}",
+            customerId, appointmentId, oldStartsAt, startsAt);
         return AppointmentResponse.From(appointment);
     }
 

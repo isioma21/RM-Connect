@@ -1,30 +1,18 @@
 import { useEffect, useState } from 'react'
 import {
-  Alert, Box, Button, Card, CardContent, CircularProgress, MenuItem, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography,
+  Alert, Box, Button, Card, CardContent, CircularProgress, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography,
 } from '@mui/material'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import dayjs, { type Dayjs } from 'dayjs'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { appointmentsApi } from '../../api/appointments'
 import { relationshipsApi } from '../../api/relationships'
 import type { AppointmentChannel, Relationship } from '../../api/types'
 import { ErrorAlert } from '../../components/ErrorAlert'
+import { SlotPicker } from '../../components/SlotPicker'
 import { channelLabel, formatDay, formatTime } from '../../utils/format'
-
-const isWeekend = (day: Dayjs) => day.day() === 0 || day.day() === 6
-
-/** The first weekday after today. */
-function nextWeekday() {
-  let day = dayjs().add(1, 'day')
-  while (isWeekend(day)) day = day.add(1, 'day')
-  return day
-}
 
 export function BookAppointmentPage() {
   const navigate = useNavigate()
   const [relationship, setRelationship] = useState<Relationship | null>()
-  const [date, setDate] = useState(nextWeekday)
-  const [freeSlots, setFreeSlots] = useState<string[]>([])
   const [slot, setSlot] = useState<string | null>(null)
   const [channel, setChannel] = useState<AppointmentChannel>('Call')
   const [reason, setReason] = useState('')
@@ -37,20 +25,10 @@ export function BookAppointmentPage() {
 
   const hasManager = relationship?.status === 'Active'
 
-  useEffect(() => {
-    if (hasManager) appointmentsApi.freeSlots(date.format('YYYY-MM-DD')).then(setFreeSlots).catch(setError)
-  }, [date, hasManager])
-
   if (relationship === undefined) return error ? <ErrorAlert error={error} /> : <CircularProgress aria-label="Loading" />
   if (!hasManager) return <NoManagerYet relationship={relationship} />
 
   const { manager, customer } = relationship
-
-  function pickDate(day: Dayjs | null) {
-    if (!day?.isValid() || isWeekend(day) || !day.isAfter(dayjs(), 'day')) return
-    setDate(day)
-    setSlot(null)
-  }
 
   async function confirm() {
     if (!slot) return
@@ -74,27 +52,7 @@ export function BookAppointmentPage() {
         <Card>
           <CardContent sx={{ p: 3 }}>
             <Typography sx={{ fontWeight: 700, mb: 2.5 }}>1. When would you like to meet?</Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <DatePicker
-                label="Date"
-                value={date}
-                onChange={pickDate}
-                minDate={dayjs().add(1, 'day')}
-                shouldDisableDate={isWeekend}
-                sx={{ flex: 1 }}
-              />
-              <TextField
-                select
-                label="Time"
-                value={slot ?? ''}
-                onChange={(e) => setSlot(e.target.value)}
-                disabled={freeSlots.length === 0}
-                helperText={freeSlots.length === 0 ? 'No free times on this day. Please pick another date.' : ' '}
-                sx={{ flex: 1 }}
-              >
-                {freeSlots.map((free) => <MenuItem key={free} value={free}>{formatTime(free)}</MenuItem>)}
-              </TextField>
-            </Stack>
+            <SlotPicker slot={slot} onSlotChange={setSlot} onError={setError} />
           </CardContent>
         </Card>
 

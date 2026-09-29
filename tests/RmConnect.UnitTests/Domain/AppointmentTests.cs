@@ -65,4 +65,39 @@ public class AppointmentTests
 
         Assert.Equal(AppointmentStatus.Completed, appointment.Status);
     }
+
+    [Fact]
+    public void Reschedule_moves_a_booked_appointment()
+    {
+        var appointment = Appointment.Book(TestUsers.ActiveRelationship(), Tomorrow, "Loan", AppointmentChannel.Call, TestUsers.Now);
+
+        appointment.Reschedule(Tomorrow.AddHours(2), TestUsers.Now);
+
+        Assert.Equal(Tomorrow.AddHours(2), appointment.StartsAt);
+    }
+
+    [Fact]
+    public void Cannot_reschedule_to_the_same_time()
+    {
+        var appointment = Appointment.Book(TestUsers.ActiveRelationship(), Tomorrow, "Loan", AppointmentChannel.Call, TestUsers.Now);
+
+        Assert.Throws<DomainException>(() => appointment.Reschedule(Tomorrow, TestUsers.Now));
+    }
+
+    [Fact]
+    public void Cannot_reschedule_after_it_has_started()
+    {
+        var appointment = Appointment.Book(TestUsers.ActiveRelationship(), Tomorrow, "Loan", AppointmentChannel.Call, TestUsers.Now);
+
+        Assert.Throws<DomainException>(() => appointment.Reschedule(Tomorrow.AddDays(1), Tomorrow.AddMinutes(5)));
+    }
+
+    [Fact]
+    public void Cannot_reschedule_a_cancelled_appointment()
+    {
+        var appointment = Appointment.Book(TestUsers.ActiveRelationship(), Tomorrow, "Loan", AppointmentChannel.Call, TestUsers.Now);
+        appointment.Cancel();
+
+        Assert.Throws<DomainException>(() => appointment.Reschedule(Tomorrow.AddHours(2), TestUsers.Now));
+    }
 }

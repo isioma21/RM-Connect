@@ -39,6 +39,13 @@ public class AppointmentsController(AppointmentService appointmentService) : Con
         return await appointmentService.CancelAsync(User.GetUserId(), id, ct);
     }
 
+    [Authorize(Roles = nameof(UserRole.Customer))]
+    [HttpPost("{id:guid}/reschedule")]
+    public async Task<ActionResult<AppointmentResponse>> Reschedule(Guid id, RescheduleAppointmentRequest request, CancellationToken ct)
+    {
+        return await appointmentService.RescheduleAsync(User.GetUserId(), id, request, ct);
+    }
+
     [Authorize(Roles = nameof(UserRole.RelationshipManager))]
     [HttpPost("{id:guid}/complete")]
     public async Task<ActionResult<AppointmentResponse>> Complete(Guid id, CancellationToken ct)

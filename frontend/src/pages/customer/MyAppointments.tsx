@@ -5,6 +5,7 @@ import type { Appointment } from '../../api/types'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { StatusChip } from '../../components/StatusChip'
+import { RescheduleDialog } from './RescheduleDialog'
 import { channelLabel, formatDay, formatTime } from '../../utils/format'
 
 export function MyAppointments() {
@@ -12,6 +13,7 @@ export function MyAppointments() {
   const [error, setError] = useState<unknown>(null)
   const [now] = useState(() => new Date())
   const [toCancel, setToCancel] = useState<Appointment | null>(null)
+  const [toReschedule, setToReschedule] = useState<Appointment | null>(null)
 
   const load = useCallback(() => {
     appointmentsApi.mine().then(setAppointments).catch(setError)
@@ -38,7 +40,7 @@ export function MyAppointments() {
       <Typography variant="h2">Appointments</Typography>
       <ErrorAlert error={error} />
       <Card>
-        <Section title="Upcoming" appointments={upcoming} empty="No upcoming appointments." onCancel={setToCancel} />
+        <Section title="Upcoming" appointments={upcoming} empty="No upcoming appointments." onCancel={setToCancel} onReschedule={setToReschedule} />
         <Divider />
         <Section title="Past" appointments={past} empty="No past appointments yet." />
       </Card>
@@ -52,6 +54,13 @@ export function MyAppointments() {
         onConfirm={cancel}
         onClose={() => setToCancel(null)}
       />
+      {toReschedule && (
+        <RescheduleDialog
+          appointment={toReschedule}
+          onClose={() => setToReschedule(null)}
+          onRescheduled={() => { setToReschedule(null); load() }}
+        />
+      )}
     </Stack>
   )
 }
@@ -61,9 +70,10 @@ type SectionProps = {
   appointments: Appointment[]
   empty: string
   onCancel?: (appointment: Appointment) => void
+  onReschedule?: (appointment: Appointment) => void
 }
 
-function Section({ title, appointments, empty, onCancel }: SectionProps) {
+function Section({ title, appointments, empty, onCancel, onReschedule }: SectionProps) {
   return (
     <Box>
       <Typography sx={{ px: 3, py: 1.5, fontSize: 13, fontWeight: 700, color: 'text.secondary', bgcolor: '#FAF8F3' }}>
@@ -84,6 +94,7 @@ function Section({ title, appointments, empty, onCancel }: SectionProps) {
             </Typography>
           </Box>
           <StatusChip status={appointment.status} />
+          {onReschedule && <Button variant="outlined" onClick={() => onReschedule(appointment)}>Reschedule</Button>}
           {onCancel && <Button variant="outlined" color="inherit" onClick={() => onCancel(appointment)}>Cancel</Button>}
         </Stack>
       ))}

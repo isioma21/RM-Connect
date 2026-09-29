@@ -47,6 +47,16 @@ public class Appointment
         Status = AppointmentStatus.Cancelled;
     }
 
+    /// <summary>Moves a booked appointment that hasn't started to a new future time.</summary>
+    public void Reschedule(DateTime startsAt, DateTime now)
+    {
+        if (Status != AppointmentStatus.Booked) throw new DomainException("Only booked appointments can be rescheduled.");
+        if (StartsAt <= now) throw new DomainException("An appointment that has started can't be rescheduled.");
+        if (startsAt <= now) throw new DomainException("The new time must be in the future.");
+        if (startsAt == StartsAt) throw new DomainException("Pick a different time.");
+        StartsAt = startsAt;
+    }
+
     public void Complete(DateTime now)
     {
         if (Status != AppointmentStatus.Booked) throw new DomainException("Only booked appointments can be completed.");
