@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Box, Button, Card, Chip, CircularProgress, Stack, Typography } from '@mui/material'
-import { sessionsApi } from '../api/sessions'
-import type { Session } from '../api/types'
-import { ConfirmDialog } from '../components/ConfirmDialog'
-import { ErrorAlert } from '../components/ErrorAlert'
-import { deviceName } from '../utils/device'
-import { formatDay, formatTime } from '../utils/format'
+import { sessionsApi } from '../../api/sessions'
+import type { Session } from '../../api/types'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
+import { ErrorAlert } from '../../components/ErrorAlert'
+import { deviceName } from '../../utils/device'
+import { formatDay, formatTime } from '../../utils/format'
 
-export function DevicesPage() {
+export function Devices() {
   const [sessions, setSessions] = useState<Session[]>()
   const [error, setError] = useState<unknown>(null)
   const [toSignOut, setToSignOut] = useState<Session | null>(null)
@@ -36,10 +36,10 @@ export function DevicesPage() {
   const others = sessions.filter((session) => !session.isCurrent)
 
   return (
-    <Stack spacing={2.5} sx={{ maxWidth: 760 }}>
+    <Stack spacing={2}>
       <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ justifyContent: 'space-between', alignItems: { sm: 'center' }, gap: 2 }}>
         <Box>
-          <Typography variant="h1">Devices</Typography>
+          <Typography variant="h2">Devices</Typography>
           <Typography color="text.secondary">Where you are signed in. Sign out any device you don't recognise.</Typography>
         </Box>
         {others.length > 0 && (

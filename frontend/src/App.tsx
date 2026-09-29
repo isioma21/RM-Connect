@@ -3,12 +3,12 @@ import { homePath, useAuth } from './auth/AuthContext.ts'
 import { RequireRole } from './auth/RequireRole.tsx'
 import { Layout } from './components/Layout.tsx'
 import { LoginPage } from './pages/LoginPage.tsx'
-import { DevicesPage } from './pages/DevicesPage.tsx'
 import { RegisterPage } from './pages/RegisterPage.tsx'
 import { BookAppointmentPage } from './pages/customer/BookAppointmentPage.tsx'
 import { CustomerHomePage } from './pages/customer/CustomerHomePage.tsx'
 import { ManagerHomePage } from './pages/manager/ManagerHomePage.tsx'
 import { ManagerSchedulePage } from './pages/manager/ManagerSchedulePage.tsx'
+import { SecurityPage } from './pages/security/SecurityPage.tsx'
 
 export default function App() {
   const { user } = useAuth()
@@ -29,7 +29,7 @@ export default function App() {
       </Route>
 
       <Route element={<RequireRole><Layout /></RequireRole>}>
-        <Route path="/devices" element={<DevicesPage />} />
+        <Route path="/security" element={<SecurityPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to={user ? homePath(user) : '/login'} replace />} />

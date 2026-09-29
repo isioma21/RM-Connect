@@ -17,9 +17,6 @@ public class RegisterManagerRequestValidator : AbstractValidator<RegisterManager
             .Must(email => email.Trim().EndsWith(staffDomain, StringComparison.OrdinalIgnoreCase))
             .WithMessage($"Use your work email ({staffDomain}).");
         RuleFor(r => r.Branch).NotEmpty().MaximumLength(100);
-        RuleFor(r => r.Password).NotEmpty().MinimumLength(8).MaximumLength(72)
-            .Matches("[A-Z]").WithMessage("Password must contain an uppercase letter.")
-            .Matches("[a-z]").WithMessage("Password must contain a lowercase letter.")
-            .Matches("[0-9]").WithMessage("Password must contain a number.");
+        RuleFor(r => r.Password).StrongPassword();
     }
 }

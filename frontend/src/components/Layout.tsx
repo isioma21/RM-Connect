@@ -8,13 +8,13 @@ import { IdleWarning } from './IdleWarning'
 const customerLinks = [
   { to: '/customer', label: 'My manager' },
   { to: '/customer/book', label: 'Book appointment' },
-  { to: '/devices', label: 'Devices' },
+  { to: '/security', label: 'Security' },
 ]
 
 const managerLinks = [
   { to: '/manager', label: 'Customers' },
   { to: '/manager/schedule', label: 'Schedule' },
-  { to: '/devices', label: 'Devices' },
+  { to: '/security', label: 'Security' },
 ]
 
 /** Top bar and page area for signed-in pages. */

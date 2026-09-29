@@ -13,9 +13,6 @@ public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustom
         RuleFor(r => r.Email).NotEmpty().EmailAddress().MaximumLength(256);
         RuleFor(r => r.Phone).NotEmpty()
             .Matches(@"^\+?[0-9]{10,15}$").WithMessage("Phone number must be 10 to 15 digits.");
-        RuleFor(r => r.Password).NotEmpty().MinimumLength(8).MaximumLength(72)
-            .Matches("[A-Z]").WithMessage("Password must contain an uppercase letter.")
-            .Matches("[a-z]").WithMessage("Password must contain a lowercase letter.")
-            .Matches("[0-9]").WithMessage("Password must contain a number.");
+        RuleFor(r => r.Password).StrongPassword();
     }
 }

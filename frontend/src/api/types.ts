@@ -41,6 +41,11 @@ export type BookAppointmentRequest = {
   reason: string
 }
 
+export type ChangePasswordRequest = {
+  currentPassword: string
+  newPassword: string
+}
+
 export type RegisterCustomerRequest = {
   firstName: string
   lastName: string

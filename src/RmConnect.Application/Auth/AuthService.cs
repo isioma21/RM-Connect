@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RmConnect.Application.Common.Exceptions;
@@ -12,6 +13,7 @@ public class AuthService(
     IPasswordHasher passwordHasher,
     IValidator<RegisterCustomerRequest> customerValidator,
     IValidator<RegisterManagerRequest> managerValidator,
+    IValidator<ChangePasswordRequest> changePasswordValidator,
     ILogger<AuthService> logger)
 {
     public async Task<UserResponse> RegisterCustomerAsync(RegisterCustomerRequest request, CancellationToken ct)
@@ -53,6 +55,23 @@ public class AuthService(
     {
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
         return user is null ? null : UserResponse.From(user);
+    }
+
+    public async Task ChangePasswordAsync(Guid userId, ChangePasswordRequest request, CancellationToken ct)
+    {
+        await changePasswordValidator.ValidateAndThrowAsync(request, ct);
+
+        var user = await db.Users.FirstAsync(u => u.Id == userId, ct);
+        if (!passwordHasher.Verify(user.PasswordHash, request.CurrentPassword))
+        {
+            logger.LogWarning("Password change rejected for user {UserId}: wrong current password", userId);
+            throw new ValidationException([new ValidationFailure(nameof(request.CurrentPassword), "Current password is incorrect.")]);
+        }
+
+        user.ChangePassword(passwordHasher.Hash(request.NewPassword));
+        await db.SaveChangesAsync(ct);
+
+        logger.LogInformation("User {UserId} changed their password", userId);
     }
 
     private async Task<UserResponse> SaveNewUserAsync(User user, CancellationToken ct)

@@ -43,6 +43,8 @@ public class User
         LastLoginIp = ipAddress;
     }
 
+    public void ChangePassword(string passwordHash) => PasswordHash = passwordHash;
+
     public static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
 
     private static User Create(string firstName, string lastName, string email, string passwordHash,
