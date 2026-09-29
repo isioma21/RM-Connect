@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Alert, Box, Button, Card, CardContent, Link, Stack, TextField, Typography } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
-import { Link as RouterLink, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link as RouterLink, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { homePath, useAuth } from '../auth/AuthContext'
 import { ErrorAlert } from '../components/ErrorAlert'
 import { PasswordField } from '../components/PasswordField'
@@ -16,7 +16,8 @@ export function LoginPage() {
   const { user, login } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const [email, setEmail] = useState('')
+  const registeredEmail: string | undefined = useLocation().state?.registeredEmail
+  const [email, setEmail] = useState(registeredEmail ?? '')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<unknown>(null)
   const [submitting, setSubmitting] = useState(false)

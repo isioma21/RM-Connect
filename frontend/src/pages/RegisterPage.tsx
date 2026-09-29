@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { Box, Button, Card, CardContent, Link, Stack, Tab, Tabs, TextField, Typography } from '@mui/material'
+import {
+  Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Link, Stack, Tab, Tabs, TextField, Typography,
+} from '@mui/material'
 import { Link as RouterLink, Navigate, useNavigate } from 'react-router-dom'
 import { authApi } from '../api/auth'
 import type { Role } from '../api/types'
@@ -10,12 +12,13 @@ import { PasswordField } from '../components/PasswordField'
 const emptyForm = { firstName: '', lastName: '', email: '', phone: '', branch: '', password: '' }
 
 export function RegisterPage() {
-  const { user, login } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const [role, setRole] = useState<Role>('Customer')
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState<unknown>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [created, setCreated] = useState(false)
 
   if (user) return <Navigate to={homePath(user)} replace />
 
@@ -23,6 +26,10 @@ export function RegisterPage() {
 
   function update(field: keyof typeof emptyForm, value: string) {
     setForm({ ...form, [field]: value })
+  }
+
+  function goToLogin() {
+    navigate('/login', { state: { registeredEmail: form.email } })
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -39,8 +46,7 @@ export function RegisterPage() {
           firstName: form.firstName, lastName: form.lastName, workEmail: form.email, branch: form.branch, password: form.password,
         })
       }
-      const loggedIn = await login(form.email, form.password)
-      navigate(homePath(loggedIn))
+      setCreated(true)
     } catch (err) {
       setError(err)
     } finally {
@@ -100,6 +106,18 @@ export function RegisterPage() {
           </CardContent>
         </Card>
       </Stack>
+
+      <Dialog open={created} onClose={goToLogin} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 600 }}>Account created</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Your account has been created successfully, {form.firstName}. Log in with your email and password to continue.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={goToLogin} variant="contained">Go to log in</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }
