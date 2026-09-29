@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RmConnect.Application.Auth;
@@ -8,7 +9,7 @@ using RmConnect.Domain.Users;
 
 namespace RmConnect.Application.Relationships;
 
-public class RelationshipService(IAppDbContext db, ILogger<RelationshipService> logger)
+public class RelationshipService(IAppDbContext db, IValidator<EndRelationshipRequest> endValidator, ILogger<RelationshipService> logger)
 {
     public async Task<List<UserResponse>> GetManagersAsync(CancellationToken ct)
     {
@@ -80,13 +81,16 @@ public class RelationshipService(IAppDbContext db, ILogger<RelationshipService> 
         return RelationshipResponse.From(relationship);
     }
 
-    public async Task<RelationshipResponse> EndAsync(Guid userId, Guid relationshipId, CancellationToken ct)
+    public async Task<RelationshipResponse> EndAsync(Guid userId, Guid relationshipId, EndRelationshipRequest request, CancellationToken ct)
     {
+        await endValidator.ValidateAndThrowAsync(request, ct);
+
         var relationship = await FindAsync(relationshipId, userId, ct);
-        relationship.End(DateTime.UtcNow);
+        relationship.End(DateTime.UtcNow, request.Reason);
         await db.SaveChangesAsync(ct);
 
-        logger.LogInformation("User {UserId} ended relationship {RelationshipId}", userId, relationshipId);
+        logger.LogInformation("User {UserId} ended relationship {RelationshipId} (reason: {EndReason})",
+            userId, relationshipId, relationship.EndReason ?? "none");
         return RelationshipResponse.From(relationship);
     }
 

@@ -1,4 +1,5 @@
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RmConnect.Application.Common.Exceptions;
@@ -13,6 +14,7 @@ public class AppointmentService(
     BookingCalendar calendar,
     IValidator<BookAppointmentRequest> validator,
     IValidator<RescheduleAppointmentRequest> rescheduleValidator,
+    IValidator<CancelAppointmentRequest> cancelValidator,
     ILogger<AppointmentService> logger)
 {
     public async Task<List<DateTime>> GetFreeSlotsAsync(Guid customerId, DateOnly date, CancellationToken ct)
@@ -69,13 +71,19 @@ public class AppointmentService(
         return appointments.Select(AppointmentResponse.From).ToList();
     }
 
-    public async Task<AppointmentResponse> CancelAsync(Guid userId, Guid appointmentId, CancellationToken ct)
+    public async Task<AppointmentResponse> CancelAsync(Guid userId, Guid appointmentId, CancelAppointmentRequest request, CancellationToken ct)
     {
+        await cancelValidator.ValidateAndThrowAsync(request, ct);
+
         var appointment = await FindAsync(appointmentId, userId, ct);
-        appointment.Cancel();
+        if (appointment.ManagerId == userId && string.IsNullOrWhiteSpace(request.Reason))
+            throw new ValidationException([new ValidationFailure(nameof(request.Reason), "Please give the customer a reason for cancelling.")]);
+
+        appointment.Cancel(request.Reason);
         await db.SaveChangesAsync(ct);
 
-        logger.LogInformation("User {UserId} cancelled appointment {AppointmentId}", userId, appointmentId);
+        logger.LogInformation("User {UserId} cancelled appointment {AppointmentId} (reason: {CancellationReason})",
+            userId, appointmentId, appointment.CancellationReason ?? "none");
         return AppointmentResponse.From(appointment);
     }
 

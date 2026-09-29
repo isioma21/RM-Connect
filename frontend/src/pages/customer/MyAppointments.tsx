@@ -81,7 +81,12 @@ function Section({ title, appointments, empty, onCancel, onReschedule }: Section
       </Typography>
       {appointments.length === 0 && <Typography sx={{ px: 3, py: 2.5 }} color="text.secondary">{empty}</Typography>}
       {appointments.map((appointment) => (
-        <Stack key={appointment.id} direction="row" spacing={2} sx={{ px: 3, py: 2.5, alignItems: 'center', borderTop: 1, borderColor: 'divider' }}>
+        <Stack
+          key={appointment.id}
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          sx={{ px: { xs: 2, sm: 3 }, py: 2.5, alignItems: { xs: 'flex-start', sm: 'center' }, borderTop: 1, borderColor: 'divider' }}
+        >
           <Box sx={{ flexGrow: 1 }}>
             <Typography sx={{ fontWeight: 700 }}>
               {formatDay(appointment.startsAt)}, {formatTime(appointment.startsAt)} · {channelLabel(appointment.channel)}
@@ -92,10 +97,17 @@ function Section({ title, appointments, empty, onCancel, onReschedule }: Section
                 : `${appointment.manager.branch} branch`}
               {' · '}{appointment.reason}
             </Typography>
+            {appointment.cancellationReason && (
+              <Typography variant="body2" color="error.main">
+                Cancelled by {appointment.manager.firstName}: {appointment.cancellationReason}
+              </Typography>
+            )}
           </Box>
-          <StatusChip status={appointment.status} />
-          {onReschedule && <Button variant="outlined" onClick={() => onReschedule(appointment)}>Reschedule</Button>}
-          {onCancel && <Button variant="outlined" color="inherit" onClick={() => onCancel(appointment)}>Cancel</Button>}
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+            <StatusChip status={appointment.status} />
+            {onReschedule && <Button variant="outlined" onClick={() => onReschedule(appointment)}>Reschedule</Button>}
+            {onCancel && <Button variant="outlined" color="inherit" onClick={() => onCancel(appointment)}>Cancel</Button>}
+          </Stack>
         </Stack>
       ))}
     </Box>

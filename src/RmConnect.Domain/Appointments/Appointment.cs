@@ -14,6 +14,7 @@ public class Appointment
     public string Reason { get; private set; } = default!;
     public AppointmentChannel Channel { get; private set; }
     public AppointmentStatus Status { get; private set; }
+    public string? CancellationReason { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
     public User Customer { get; private set; } = default!;
@@ -41,10 +42,11 @@ public class Appointment
         };
     }
 
-    public void Cancel()
+    public void Cancel(string? reason = null)
     {
         if (Status != AppointmentStatus.Booked) throw new DomainException("Only booked appointments can be cancelled.");
         Status = AppointmentStatus.Cancelled;
+        CancellationReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
     }
 
     /// <summary>Moves a booked appointment that hasn't started to a new future time.</summary>

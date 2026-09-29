@@ -64,4 +64,22 @@ public class AppointmentTests(ApiFactory api)
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Manager_must_give_a_reason_to_cancel_and_the_customer_sees_it()
+    {
+        var customer = await api.CreateCustomerAsync();
+        var manager = await api.CreateManagerAsync();
+        await api.ConnectAsync(customer, manager);
+        var booking = await customer.Client.PostAsJsonAsync("/api/appointments", new { startsAt = Slot.AddDays(1), channel = "Call", reason = "Loan" });
+        var appointment = await booking.ReadAsync<AppointmentResponse>();
+
+        var withoutReason = await manager.Client.PostAsJsonAsync($"/api/appointments/{appointment.Id}/cancel", new { reason = "" });
+        var withReason = await manager.Client.PostAsJsonAsync($"/api/appointments/{appointment.Id}/cancel", new { reason = "Called away to a branch audit" });
+        var customerView = await (await customer.Client.GetAsync("/api/appointments")).ReadAsync<List<AppointmentResponse>>();
+
+        Assert.Equal(HttpStatusCode.BadRequest, withoutReason.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, withReason.StatusCode);
+        Assert.Equal("Called away to a branch audit", customerView.Single().CancellationReason);
+    }
 }

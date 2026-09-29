@@ -59,7 +59,7 @@ export function RegisterPage() {
       <Stack spacing={2} sx={{ width: '100%', maxWidth: 520, alignItems: 'center' }}>
         <Typography variant="h3" component="div" color="primary">RM Connect</Typography>
         <Card sx={{ width: '100%' }}>
-          <CardContent component="form" onSubmit={handleSubmit} sx={{ p: 5 }}>
+          <CardContent component="form" onSubmit={handleSubmit} sx={{ p: { xs: 3, sm: 5 } }}>
             <Stack spacing={2.5}>
               <Typography variant="h2" component="h1">Create your account</Typography>
 
@@ -70,7 +70,7 @@ export function RegisterPage() {
 
               <ErrorAlert error={error} />
 
-              <Stack direction="row" spacing={2}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
                 <TextField label="First name" value={form.firstName} onChange={(e) => update('firstName', e.target.value)} autoComplete="given-name" required fullWidth />
                 <TextField label="Last name" value={form.lastName} onChange={(e) => update('lastName', e.target.value)} autoComplete="family-name" required fullWidth />
               </Stack>

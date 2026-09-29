@@ -34,9 +34,10 @@ public class AppointmentsController(AppointmentService appointmentService) : Con
     }
 
     [HttpPost("{id:guid}/cancel")]
-    public async Task<ActionResult<AppointmentResponse>> Cancel(Guid id, CancellationToken ct)
+    public async Task<ActionResult<AppointmentResponse>> Cancel(Guid id,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] CancelAppointmentRequest? request, CancellationToken ct)
     {
-        return await appointmentService.CancelAsync(User.GetUserId(), id, ct);
+        return await appointmentService.CancelAsync(User.GetUserId(), id, request ?? new CancelAppointmentRequest(null), ct);
     }
 
     [Authorize(Roles = nameof(UserRole.Customer))]

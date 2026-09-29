@@ -13,6 +13,7 @@ public class Relationship
     public DateTime RequestedAt { get; private set; }
     public DateTime? RespondedAt { get; private set; }
     public DateTime? EndedAt { get; private set; }
+    public string? EndReason { get; private set; }
 
     public User Customer { get; private set; } = default!;
     public User Manager { get; private set; } = default!;
@@ -49,11 +50,12 @@ public class Relationship
     }
 
     /// <summary>Cancels a pending request or ends an active relationship.</summary>
-    public void End(DateTime now)
+    public void End(DateTime now, string? reason = null)
     {
         if (!IsOpen) throw new DomainException("This relationship has already been closed.");
         Status = RelationshipStatus.Ended;
         EndedAt = now;
+        EndReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
     }
 
     /// <summary>Pending or active: a customer can have only one open relationship at a time.</summary>

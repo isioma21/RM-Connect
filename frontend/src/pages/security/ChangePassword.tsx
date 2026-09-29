@@ -1,12 +1,18 @@
 import { useState, type FormEvent } from 'react'
-import { Alert, Box, Button, Card, CardContent, Stack, Typography } from '@mui/material'
+import {
+  Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Stack, Typography,
+} from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 import { authApi } from '../../api/auth'
+import { useAuth } from '../../auth/AuthContext'
 import { ErrorAlert } from '../../components/ErrorAlert'
 import { PasswordField } from '../../components/PasswordField'
 
 const emptyForm = { currentPassword: '', newPassword: '', confirmPassword: '' }
 
-export function ChangePassword({ onChanged }: { onChanged: () => void }) {
+export function ChangePassword() {
+  const { logout } = useAuth()
+  const navigate = useNavigate()
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState<unknown>(null)
   const [changed, setChanged] = useState(false)
@@ -16,7 +22,6 @@ export function ChangePassword({ onChanged }: { onChanged: () => void }) {
 
   function update(field: keyof typeof emptyForm, value: string) {
     setForm({ ...form, [field]: value })
-    setChanged(false)
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -26,14 +31,18 @@ export function ChangePassword({ onChanged }: { onChanged: () => void }) {
     setError(null)
     try {
       await authApi.changePassword({ currentPassword: form.currentPassword, newPassword: form.newPassword })
-      setForm(emptyForm)
       setChanged(true)
-      onChanged()
     } catch (err) {
       setError(err)
     } finally {
       setSubmitting(false)
     }
+  }
+
+  // The API has already signed out every device; clear this one and go to login
+  async function logInAgain() {
+    await logout()
+    navigate('/login')
   }
 
   return (
@@ -42,7 +51,6 @@ export function ChangePassword({ onChanged }: { onChanged: () => void }) {
       <Card>
         <CardContent component="form" onSubmit={handleSubmit} sx={{ p: 3 }}>
           <Stack spacing={2.5}>
-            {changed && <Alert severity="success">Password changed. Your other devices have been signed out.</Alert>}
             <ErrorAlert error={error} />
             <PasswordField
               label="Current password"
@@ -76,6 +84,18 @@ export function ChangePassword({ onChanged }: { onChanged: () => void }) {
           </Stack>
         </CardContent>
       </Card>
+
+      <Dialog open={changed} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontFamily: "'Fraunces', Georgia, serif", fontWeight: 600 }}>Password changed</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Your password has been changed successfully. You have been logged out of all devices. Log in with your new password.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={logInAgain} variant="contained">Log in again</Button>
+        </DialogActions>
+      </Dialog>
     </Stack>
   )
 }

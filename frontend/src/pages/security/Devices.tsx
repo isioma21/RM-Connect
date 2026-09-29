@@ -54,8 +54,8 @@ export function Devices() {
         {sessions.map((session, index) => (
           <Stack
             key={session.id}
-            direction="row"
-            sx={{ p: 2.5, gap: 2, alignItems: 'center', borderTop: index ? 1 : 0, borderColor: 'divider' }}
+            direction={{ xs: 'column', sm: 'row' }}
+            sx={{ p: 2.5, gap: 2, alignItems: { xs: 'flex-start', sm: 'center' }, borderTop: index ? 1 : 0, borderColor: 'divider' }}
           >
             <Box sx={{ flexGrow: 1 }}>
               <Stack direction="row" sx={{ gap: 1, alignItems: 'center' }}>

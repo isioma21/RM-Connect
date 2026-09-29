@@ -18,6 +18,7 @@ export type Relationship = {
   requestedAt: string
   respondedAt: string | null
   endedAt: string | null
+  endReason: string | null
   customer: User
   manager: User
 }
@@ -31,6 +32,7 @@ export type Appointment = {
   channel: AppointmentChannel
   reason: string
   status: AppointmentStatus
+  cancellationReason: string | null
   customer: User
   manager: User
 }

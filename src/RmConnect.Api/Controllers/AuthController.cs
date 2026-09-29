@@ -58,13 +58,14 @@ public class AuthController(AuthService authService, SessionService sessionServi
         return user is null ? Unauthorized() : Ok(user);
     }
 
-    /// <summary>Changes the password and signs out every other device.</summary>
+    /// <summary>Changes the password and signs out every device, this one included.</summary>
     [Authorize]
     [HttpPost("change-password")]
     public async Task<IActionResult> ChangePassword(ChangePasswordRequest request, CancellationToken ct)
     {
         await authService.ChangePasswordAsync(User.GetUserId(), request, ct);
-        await sessionService.RevokeOthersAsync(User.GetUserId(), User.GetSessionId(), ct);
+        await sessionService.RevokeAllAsync(User.GetUserId(), ct);
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return NoContent();
     }
 

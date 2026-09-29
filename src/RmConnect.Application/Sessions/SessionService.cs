@@ -56,6 +56,18 @@ public class SessionService(IAppDbContext db, IOptions<SessionOptions> options, 
         logger.LogInformation("User {UserId} signed out session {SessionId}", userId, sessionId);
     }
 
+    public async Task RevokeAllAsync(Guid userId, CancellationToken ct)
+    {
+        var sessions = await db.Sessions.Where(s => s.UserId == userId && s.RevokedAt == null).ToListAsync(ct);
+
+        var now = DateTime.UtcNow;
+        foreach (var session in sessions)
+            session.Revoke(now);
+        await db.SaveChangesAsync(ct);
+
+        logger.LogInformation("User {UserId} signed out of all {Count} sessions", userId, sessions.Count);
+    }
+
     public async Task RevokeOthersAsync(Guid userId, Guid currentSessionId, CancellationToken ct)
     {
         var otherSessions = await db.Sessions

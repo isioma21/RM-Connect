@@ -8,6 +8,8 @@ public class RelationshipConfiguration : IEntityTypeConfiguration<Relationship>
 {
     public void Configure(EntityTypeBuilder<Relationship> builder)
     {
+        builder.Property(r => r.EndReason).HasMaxLength(200);
+
         builder.HasOne(r => r.Customer).WithMany().HasForeignKey(r => r.CustomerId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(r => r.Manager).WithMany().HasForeignKey(r => r.ManagerId).OnDelete(DeleteBehavior.Restrict);
 

@@ -42,9 +42,9 @@ export function NewRequests({ requests, onChanged }: Props) {
         {requests.map((request, index) => (
           <Stack
             key={request.id}
-            direction="row"
+            direction={{ xs: 'column', sm: 'row' }}
             spacing={2}
-            sx={{ px: 3, py: 2.5, alignItems: 'center', borderTop: index === 0 ? 0 : 1, borderColor: 'divider' }}
+            sx={{ px: { xs: 2, sm: 3 }, py: 2.5, alignItems: { xs: 'flex-start', sm: 'center' }, borderTop: index === 0 ? 0 : 1, borderColor: 'divider' }}
           >
             <UserAvatar user={request.customer} size={44} />
             <Box sx={{ flexGrow: 1 }}>
@@ -53,8 +53,10 @@ export function NewRequests({ requests, onChanged }: Props) {
                 {request.customer.email} · {request.customer.phone} · requested {formatDay(request.requestedAt)} at {formatTime(request.requestedAt)}
               </Typography>
             </Box>
-            <Button variant="outlined" color="inherit" onClick={() => setToDecline(request)}>Decline</Button>
-            <Button variant="contained" onClick={() => accept(request)}>Accept</Button>
+            <Stack direction="row" spacing={1}>
+              <Button variant="outlined" color="inherit" onClick={() => setToDecline(request)}>Decline</Button>
+              <Button variant="contained" onClick={() => accept(request)}>Accept</Button>
+            </Stack>
           </Stack>
         ))}
       </Card>

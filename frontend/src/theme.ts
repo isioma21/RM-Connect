@@ -1,8 +1,9 @@
-import { createTheme } from '@mui/material/styles'
+import { createTheme, responsiveFontSizes } from '@mui/material/styles'
 
 const headingFont = "'Fraunces', Georgia, serif"
 
-export const theme = createTheme({
+// Headings scale down on small screens
+export const theme = responsiveFontSizes(createTheme({
   palette: {
     primary: { main: '#0F5C55', dark: '#0A413C', light: '#E3EFED' },
     error: { main: '#A33A2B' },
@@ -28,4 +29,4 @@ export const theme = createTheme({
       styleOverrides: { root: { borderRadius: 16 } },
     },
   },
-})
+}))

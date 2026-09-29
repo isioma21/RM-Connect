@@ -3,8 +3,8 @@ import { Box, Button, Card, CardContent, Stack, Typography } from '@mui/material
 import { Link as RouterLink } from 'react-router-dom'
 import { relationshipsApi } from '../../api/relationships'
 import type { Relationship } from '../../api/types'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { ErrorAlert } from '../../components/ErrorAlert'
+import { ReasonDialog } from '../../components/ReasonDialog'
 import { StatusChip } from '../../components/StatusChip'
 import { UserAvatar } from '../../components/UserAvatar'
 import { formatDay } from '../../utils/format'
@@ -17,10 +17,10 @@ export function MyManager({ relationship, onChanged }: Props) {
   const [error, setError] = useState<unknown>(null)
   const [confirming, setConfirming] = useState(false)
 
-  async function endRelationship() {
+  async function endRelationship(reason: string) {
     setConfirming(false)
     try {
-      await relationshipsApi.end(relationship.id)
+      await relationshipsApi.end(relationship.id, reason)
       onChanged()
     } catch (err) {
       setError(err)
@@ -60,14 +60,17 @@ export function MyManager({ relationship, onChanged }: Props) {
 
       <MyAppointments />
 
-      <ConfirmDialog
-        open={confirming}
-        title="End relationship?"
-        message={`Are you sure you want to end your relationship with ${manager.firstName}? Your booked appointments stay as they are.`}
-        confirmLabel="Yes, end relationship"
-        onConfirm={endRelationship}
-        onClose={() => setConfirming(false)}
-      />
+      {confirming && (
+        <ReasonDialog
+          title="End relationship?"
+          message={`Are you sure you want to end your relationship with ${manager.firstName}? Your booked appointments stay as they are.`}
+          label="Why are you leaving? (optional)"
+          helperText="Your feedback helps us improve."
+          confirmLabel="Yes, end relationship"
+          onConfirm={endRelationship}
+          onClose={() => setConfirming(false)}
+        />
+      )}
     </Box>
   )
 }

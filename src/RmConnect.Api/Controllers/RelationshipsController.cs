@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RmConnect.Api.Auth;
 using RmConnect.Application.Auth;
 using RmConnect.Application.Relationships;
@@ -56,8 +57,9 @@ public class RelationshipsController(RelationshipService relationshipService) : 
     }
 
     [HttpPost("{id:guid}/end")]
-    public async Task<ActionResult<RelationshipResponse>> End(Guid id, CancellationToken ct)
+    public async Task<ActionResult<RelationshipResponse>> End(Guid id,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] EndRelationshipRequest? request, CancellationToken ct)
     {
-        return await relationshipService.EndAsync(User.GetUserId(), id, ct);
+        return await relationshipService.EndAsync(User.GetUserId(), id, request ?? new EndRelationshipRequest(null), ct);
     }
 }

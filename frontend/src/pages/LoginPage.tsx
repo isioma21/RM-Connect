@@ -68,7 +68,7 @@ export function LoginPage() {
 
       <Box sx={{ flexGrow: 1, display: 'grid', placeItems: 'center', p: 3 }}>
         <Card sx={{ width: '100%', maxWidth: 420 }}>
-          <CardContent component="form" onSubmit={handleSubmit} sx={{ p: 5 }}>
+          <CardContent component="form" onSubmit={handleSubmit} sx={{ p: { xs: 3, sm: 5 } }}>
             <Stack spacing={2.5}>
               <Box>
                 <Typography variant="h2" component="h1">Log in</Typography>
